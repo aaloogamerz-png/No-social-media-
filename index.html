@@ -1,1 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialHub - Your Social Universe</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <i class="fas fa-globe"></i>
+            </div>
+            <h1>SocialHub</h1>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="auth-screen hidden">
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fas fa-globe auth-logo"></i>
+                <h1>SocialHub</h1>
+                <p>Connect. Share. Inspire.</p>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <h2>Welcome Back</h2>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="login-username" placeholder="Username or Email">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Password">
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('login-password', this)"></i>
+                </div>
+                <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+                <div class="auth-divider"><span>OR</span></div>
+                <button class="btn-social google"><i class="fab fa-google"></i> Continue with Google</button>
+                <button class="btn-social github"><i class="fab fa-github"></i> Continue with GitHub</button>
+                <p class="auth-switch">Don't have an account? <a onclick="showRegister()">Sign Up</a></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="reg-fullname" placeholder="Full Name">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-at"></i>
+                    <input type="text" id="reg-username" placeholder="Username">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="reg-email" placeholder="Email">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="reg-password" placeholder="Password">
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('reg-password', this)"></i>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="reg-confirm" placeholder="Confirm Password">
+                </div>
+                <button class="btn-primary" onclick="handleRegister()">Create Account</button>
+                <p class="auth-switch">Already have an account? <a onclick="showLogin()">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="main-app hidden">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="nav-left">
+                <i class="fas fa-globe nav-logo"></i>
+                <h1>SocialHub</h1>
+            </div>
+            <div class="nav-center">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search people, posts, videos..." oninput="handleSearch(this.value)">
+                    <div id="search-results" class="search-results hidden"></div>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="nav-icon" onclick="showNotifications()" id="notif-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notif-badge">3</span>
+                </div>
+                <div class="nav-icon" onclick="switchTab('messages')">
+                    <i class="fas fa-comment-dots"></i>
+                    <span class="badge" id="msg-badge">5</span>
+                </div>
+                <div class="nav-icon" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </div>
+                <div class="profile-menu" onclick="toggleProfileMenu()">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser" alt="Profile" class="avatar-small">
+                    <div id="profile-dropdown" class="dropdown hidden">
+                        <a onclick="switchTab('profile')"><i class="fas fa-user"></i> My Profile</a>
+                        <a onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</a>
+                        <a onclick="switchTab('saved')"><i class="fas fa-bookmark"></i> Saved</a>
+                        <a onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notifications Panel -->
+        <div id="notifications-panel" class="notifications-panel hidden">
+            <div class="panel-header">
+                <h3>Notifications</h3>
+                <button onclick="clearNotifications()">Clear All</button>
+            </div>
+            <div id="notifications-list" class="notifications-list"></div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="app-container">
+            <!-- Left Sidebar -->
+            <aside class="sidebar-left">
+                <div class="sidebar-profile">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser" alt="Profile" class="avatar-medium">
+                    <h3 id="sidebar-name">John Doe</h3>
+                    <p id="sidebar-username">@johndoe</p>
+                    <div class="profile-stats">
+                        <div><strong id="stat-posts">24</strong><span>Posts</span></div>
+                        <div><strong id="stat-followers">1.2K</strong><span>Followers</span></div>
+                        <div><strong id="stat-following">340</strong><span>Following</span></div>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <a class="nav-item active" onclick="switchTab('feed')" data-tab="feed">
+                        <i class="fas fa-home"></i><span>Home Feed</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('explore')" data-tab="explore">
+                        <i class="fas fa-compass"></i><span>Explore</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('reels')" data-tab="reels">
+                        <i class="fas fa-film"></i><span>Reels / Shorts</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('videos')" data-tab="videos">
+                        <i class="fas fa-play-circle"></i><span>Videos</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('stories')" data-tab="stories">
+                        <i class="fas fa-circle-notch"></i><span>Stories</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('messages')" data-tab="messages">
+                        <i class="fas fa-comment-dots"></i><span>Messages</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('live')" data-tab="live">
+                        <i class="fas fa-broadcast-tower"></i><span>Live</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('groups')" data-tab="groups">
+                        <i class="fas fa-users"></i><span>Groups</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('marketplace')" data-tab="marketplace">
+                        <i class="fas fa-store"></i><span>Marketplace</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('saved')" data-tab="saved">
+                        <i class="fas fa-bookmark"></i><span>Saved</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('profile')" data-tab="profile">
+                        <i class="fas fa-user-circle"></i><span>Profile</span>
+                    </a>
+                    <a class="nav-item" onclick="switchTab('settings')" data-tab="settings">
+                        <i class="fas fa-cog"></i><span>Settings</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Feed Tab -->
+                <div id="tab-feed" class="tab-content active">
+                    <!-- Stories Bar -->
+                    <div class="stories-bar">
+                        <div class="story-item add-story" onclick="openStoryCreator()">
+                            <div class="story-avatar">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser" alt="">
+                                <span class="add-icon">+</span>
+                            </div>
+                            <span>Your Story</span>
+                        </div>
+                        <div class="stories-scroll" id="stories-container"></div>
+                    </div>
+
+                    <!-- Create Post -->
+                    <div class="create-post-card">
+                        <div class="create-post-top">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser" alt="" class="avatar-small">
+                            <div class="post-input" contenteditable="true" id="post-text" onclick="openCreatePost()" data-placeholder="What's on your mind?"></div>
+                        </div>
+                        <div class="create-post-actions">
+                            <button onclick="openCreatePost('video')"><i class="fas fa-video" style="color:#e74c3c"></i> Video</button>
+                            <button onclick="openCreatePost('photo')"><i class="fas fa-image" style="color:#2ecc71"></i> Photo</button>
+                            <button onclick="openCreatePost('feeling')"><i class="fas fa-smile" style="color:#f39c12"></i> Feeling</button>
+                            <button onclick="openCreatePost('poll')"><i class="fas fa-poll" style="color:#3498db"></i> Poll</button>
+                        </div>
+                    </div>
+
+                    <!-- Feed Posts -->
+                    <div id="feed-posts"></div>
+                    <div id="feed-loader" class="loader hidden">
+                        <div class="spinner"></div>
+                        <p>Loading more posts...</p>
+                    </div>
+                </div>
+
+                <!-- Explore Tab -->
+                <div id="tab-explore" class="tab-content hidden">
+                    <div class="explore-header">
+                        <h2>Explore</h2>
+                        <div class="explore-categories">
+                            <button class="cat-btn active" onclick="filterExplore('all', this)">All</button>
+                            <button class="cat-btn" onclick="filterExplore('trending', this)">🔥 Trending</button>
+                            <button class="cat-btn" onclick="filterExplore('photos', this)">📸 Photos</button>
+                            <button class="cat-btn" onclick="filterExplore('videos', this)">🎥 Videos</button>
+                            <button class="cat-btn" onclick="filterExplore('music', this)">🎵 Music</button>
+                            <button class="cat-btn" onclick="filterExplore('art', this)">🎨 Art</button>
+                            <button class="cat-btn" onclick="filterExplore('tech', this)">💻 Tech</button>
+                            <button class="cat-btn" onclick="filterExplore('food', this)">🍕 Food</button>
+                            <button class="cat-btn" onclick="filterExplore('travel', this)">✈️ Travel</button>
+                        </div>
+                    </div>
+                    <div id="explore-grid" class="explore-grid"></div>
+                </div>
+
+                <!-- Reels Tab -->
+                <div id="tab-reels" class="tab-content hidden">
+                    <div class="reels-container" id="reels-container"></div>
+                </div>
+
+                <!-- Videos Tab -->
+                <div id="tab-videos" class="tab-content hidden">
+                    <div class="videos-header">
+                        <h2>Videos</h2>
+                        <div class="video-categories">
+                            <button class="cat-btn active">For You</button>
+                            <button class="cat-btn">Following</button>
+                            <button class="cat-btn">Live</button>
+                            <button class="cat-btn">Gaming</button>
+                            <button class="cat-btn">Music</button>
+                        </div>
+                    </div>
+                    <div id="videos-grid" class="videos-grid"></div>
+                </div>
+
+                <!-- Stories Tab -->
+                <div id="tab-stories" class="tab-content hidden">
+                    <div class="stories-viewer" id="stories-viewer">
+                        <div class="stories-sidebar">
+                            <h3>Stories</h3>
+                            <div id="stories-list" class="stories-list"></div>
+                        </div>
+                        <div class="story-display" id="story-display">
+                            <div class="story-placeholder">
+                                <i class="fas fa-circle-notch"></i>
+                                <h3>Select a story to view</h3>
+                                <p>Stories disappear after 24 hours</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Tab -->
+                <div id="tab-messages" class="tab-content hidden">
+                    <div class="messages-container">
+                        <div class="chat-sidebar">
+                            <div class="chat-sidebar-header">
+                                <h3>Messages</h3>
+                                <button onclick="newChat()"><i class="fas fa-edit"></i></button>
+                            </div>
+                            <div class="chat-search">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search conversations...">
+                            </div>
+                            <div class="chat-tabs">
+                                <button class="active">All</button>
+                                <button>Unread</button>
+                                <button>Groups</button>
+                            </div>
+                            <div id="chat-list" class="chat-list"></div>
+                        </div>
+                        <div class="chat-main" id="chat-main">
+                            <div class="chat-placeholder">
+                                <i class="fas fa-comment-dots"></i>
+                                <h3>Select a conversation</h3>
+                                <p>Choose from your existing conversations or start a new one</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Tab -->
+                <div id="tab-live" class="tab-content hidden">
+                    <div class="live-header">
+                        <h2>Live Streams</h2>
+                        <button class="btn-primary" onclick="goLive()"><i class="fas fa-broadcast-tower"></i> Go Live</button>
+                    </div>
+                    <div id="live-grid" class="live-grid"></div>
+                </div>
+
+                <!-- Groups Tab -->
+                <div id="tab-groups" class="tab-content hidden">
+                    <div class="groups-header">
+                        <h2>Groups</h2>
+                        <button class="btn-primary" onclick="createGroup()"><i class="fas fa-plus"></i> Create Group</button>
+                    </div>
+                    <div class="groups-tabs">
+                        <button class="active">Your Groups</button>
+                        <button>Discover</button>
+                    </div>
+                    <div id="groups-grid" class="groups-grid"></div>
+                </div>
+
+                <!-- Marketplace Tab -->
+                <div id="tab-marketplace" class="tab-content hidden">
+                    <div class="marketplace-header">
+                        <h2>Marketplace</h2>
+                        <button class="btn-primary" onclick="createListing()"><i class="fas fa-plus"></i> Sell Item</button>
+                    </div>
+                    <div class="marketplace-categories">
+                        <button class="cat-btn active">All</button>
+                        <button class="cat-btn">Electronics</button>
+                        <button class="cat-btn">Clothing</button>
+                        <button class="cat-btn">Home</button>
+                        <button class="cat-btn">Vehicles</button>
+                    </div>
+                    <div id="marketplace-grid" class="marketplace-grid"></div>
+                </div>
+
+                <!-- Saved Tab -->
+                <div id="tab-saved" class="tab-content hidden">
+                    <div class="saved-header">
+                        <h2>Saved Items</h2>
+                        <div class="saved-tabs">
+                            <button class="active">All</button>
+                            <button>Posts</button>
+                            <button>Reels</button>
+                            <button>Videos</button>
+                        </div>
+                    </div>
+                    <div id="saved-grid" class="saved-grid"></div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="tab-profile" class="tab-content hidden">
+                    <div class="profile-page">
+                        <div class="profile-cover">
+                            <img src="https://picsum.photos/1200/400?random=cover" alt="Cover">
+                            <button class="edit-cover"><i class="fas fa-camera"></i></button>
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-avatar-large">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser" alt="">
+                                <button class="edit-avatar"><i class="fas fa-camera"></i></button>
+                            </div>
+                            <div class="profile-details">
+                                <h1 id="profile-name">John Doe</h1>
+                                <p class="username" id="profile-username">@johndoe</p>
+                                <p class="bio" id="profile-bio">🌍 Explorer | 📸 Photographer | 💻 Developer | Living my best life ✨</p>
+                                <div class="profile-meta">
+                                    <span><i class="fas fa-map-marker-alt"></i> New York, USA</span>
+                                    <span><i class="fas fa-link"></i> johndoe.com</span>
+                                    <span><i class="fas fa-calendar"></i> Joined Jan 2024</span>
+                                </div>
+                                <div class="profile-stats-large">
+                                    <div><strong>248</strong> Posts</div>
+                                    <div><strong>12.5K</strong> Followers</div>
+                                    <div><strong>340</strong> Following</div>
+                                </div>
+                            </div>
+                            <button class="btn-primary" onclick="editProfile()"><i class="fas fa-edit"></i> Edit Profile</button>
+                        </div>
+                        <div class="profile-tabs">
+                            <button class="active" onclick="switchProfileTab('posts', this)"><i class="fas fa-th"></i> Posts</button>
+                            <button onclick="switchProfileTab('reels', this)"><i class="fas fa-film"></i> Reels</button>
+                            <button onclick="switchProfileTab('videos', this)"><i class="fas fa-play"></i> Videos</button>
+                            <button onclick="switchProfileTab('tagged', this)"><i class="fas fa-tag"></i> Tagged</button>
+                        </div>
+                        <div id="profile-content" class="profile-content-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="tab-settings" class="tab-content hidden">
+                    <div class="settings-page">
+                        <h2>Settings</h2>
+                        <div class="settings-sections">
+                            <div class="settings-section">
+                                <h3><i class="fas fa-user"></i> Account</h3>
+                                <div class="setting-item">
+                                    <label>Display Name</label>
+                                    <input type="text" value="John Doe" id="setting-name">
+                                </div>
+                                <div class="setting-item">
+                                    <label>Username</label>
+                                    <input type="text" value="johndoe" id="setting-username">
+                                </div>
+                                <div class="setting-item">
+                                    <label>Email</label>
+                                    <input type="email" value="john@example.com" id="setting-email">
+                                </div>
+                                <div class="setting-item">
+                                    <label>Bio</label>
+                                    <textarea id="setting-bio">🌍 Explorer | 📸 Photographer | 💻 Developer</textarea>
+                                </div>
+                            </div>
+                            <div class="settings-section">
+                                <h3><i class="fas fa-palette"></i> Appearance</h3>
+                                <div class="setting-item toggle">
+                                    <label>Dark Mode</label>
+                                    <div class="toggle-switch" onclick="toggleDarkMode()">
+                                        <div class="toggle-slider" id="dark-toggle"></div>
+                                    </div>
+                                </div>
+                                <div class="setting-item">
+                                    <label>Accent Color</label>
+                                    <div class="color-options">
+                                        <div class="color-opt" style="background:#6C63FF" onclick="changeAccent('#6C63FF')"></div>
+                                        <div class="color-opt" style="background:#e74c3c" onclick="changeAccent('#e74c3c')"></div>
+                                        <div class="color-opt" style="background:#2ecc71" onclick="changeAccent('#2ecc71')"></div>
+                                        <div class="color-opt" style="background:#f39c12" onclick="changeAccent('#f39c12')"></div>
+                                        <div class="color-opt" style="background:#e91e63" onclick="changeAccent('#e91e63')"></div>
+                                        <div class="color-opt" style="background:#00bcd4" onclick="changeAccent('#00bcd4')"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-section">
+                                <h3><i class="fas fa-bell"></i> Notifications</h3>
+                                <div class="setting-item toggle">
+                                    <label>Push Notifications</label>
+                                    <div class="toggle-switch active"><div class="toggle-slider"></div></div>
+                                </div>
+                                <div class="setting-item toggle">
+                                    <label>Email Notifications</label>
+                                    <div class="toggle-switch active"><div class="toggle-slider"></div></div>
+                                </div>
+                                <div class="setting-item toggle">
+                                    <label>Sound</label>
+                                    <div class="toggle-switch active"><div class="toggle-slider"></div></div>
+                                </div>
+                            </div>
+                            <div class="settings-section">
+                                <h3><i class="fas fa-shield-alt"></i> Privacy</h3>
+                                <div class="setting-item toggle">
+                                    <label>Private Account</label>
+                                    <div class="toggle-switch"><div class="toggle-slider"></div></div>
+                                </div>
+                                <div class="setting-item toggle">
+                                    <label>Show Online Status</label>
+                                    <div class="toggle-switch active"><div class="toggle-slider"></div></div>
+                                </div>
+                                <div class="setting-item toggle">
+                                    <label>Allow Tagging</label>
+                                    <div class="toggle-switch active"><div class="toggle-slider"></div></div>
+                                </div>
+                            </div>
+                            <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar -->
+            <aside class="sidebar-right">
+                <div class="trending-section">
+                    <h3>🔥 Trending</h3>
+                    <div id="trending-list"></div>
+                </div>
+                <div class="suggestions-section">
+                    <h3>Suggested for You</h3>
+                    <div id="suggestions-list"></div>
+                </div>
+                <div class="active-friends">
+                    <h3>Active Friends</h3>
+                    <div id="active-friends-list"></div>
+                </div>
+                <div class="footer-links">
+                    <a href="#">About</a> · <a href="#">Help</a> · <a href="#">Privacy</a> · <a href="#">Terms</a>
+                    <p>© 2024 SocialHub</p>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Bottom Mobile Nav -->
+        <nav class="bottom-nav">
+            <a class="active" onclick="switchTab('feed')" data-tab="feed"><i class="fas fa-home"></i><span>Home</span></a>
+            <a onclick="switchTab('explore')" data-tab="explore"><i class="fas fa-compass"></i><span>Explore</span></a>
+            <a onclick="openCreatePost()" class="create-btn-mobile"><i class="fas fa-plus"></i></a>
+            <a onclick="switchTab('reels')" data-tab="reels"><i class="fas fa-film"></i><span>Reels</span></a>
+            <a onclick="switchTab('messages')" data-tab="messages"><i class="fas fa-comment-dots"></i><span>Chat</span></a>
+        </nav>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div id="create-post-modal" class="modal hidden">
+        <div class="modal-content create-post-modal">
+            <div class="modal-header">
+                <h3>Create Post</h3>
+                <button class="close-modal" onclick="closeModal('create-post-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="create-post-user">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=currentuser" alt="" class="avatar-small">
+                    <div>
+                        <strong>John Doe</strong>
+                        <select id="post-privacy">
+                            <option value="public">🌍 Public</option>
+                            <option value="friends">👥 Friends</option>
+                            <option value="private">🔒 Only Me</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="post-textarea" contenteditable="true" id="modal-post-text" data-placeholder="What's on your mind, John?"></div>
+                <div id="media-preview" class="media-preview hidden"></div>
+                <div id="poll-creator" class="poll-creator hidden">
+                    <input type="text" placeholder="Option 1" class="poll-option">
+                    <input type="text" placeholder="Option 2" class="poll-option">
+                    <button onclick="addPollOption()"><i class="fas fa-plus"></i> Add Option</button>
+                </div>
+                <div class="post-attachments">
+                    <button onclick="attachMedia('photo')"><i class="fas fa-image"></i> Photo</button>
+                    <button onclick="attachMedia('video')"><i class="fas fa-video"></i> Video</button>
+                    <button onclick="togglePoll()"><i class="fas fa-poll"></i> Poll</button>
+                    <button onclick="attachMedia('gif')"><i class="fas fa-film"></i> GIF</button>
+                    <button><i class="fas fa-map-marker-alt"></i> Location</button>
+                    <button><i class="fas fa-tag"></i> Tag</button>
+                    <button onclick="toggleEmojiPicker()"><i class="fas fa-smile"></i> Emoji</button>
+                </div>
+                <div id="emoji-picker" class="emoji-picker hidden">
+                    <div class="emoji-grid" id="emoji-grid"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary full-width" onclick="publishPost()">Post</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Story Creator Modal -->
+    <div id="story-modal" class="modal hidden">
+        <div class="modal-content story-modal">
+            <div class="modal-header">
+                <h3>Create Story</h3>
+                <button class="close-modal" onclick="closeModal('story-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="story-creator-body">
+                <div class="story-preview" id="story-preview">
+                    <div class="story-placeholder-content">
+                        <i class="fas fa-plus-circle"></i>
+                        <p>Add photo or video</p>
+                    </div>
+                </div>
+                <div class="story-tools">
+                    <button onclick="storyAddText()"><i class="fas fa-font"></i> Text</button>
+                    <button onclick="storyAddMedia()"><i class="fas fa-image"></i> Media</button>
+                    <button onclick="storyAddMusic()"><i class="fas fa-music"></i> Music</button>
+                    <button onclick="storyAddSticker()"><i class="fas fa-sticky-note"></i> Stickers</button>
+                    <button onclick="storyAddFilter()"><i class="fas fa-magic"></i> Filters</button>
+                    <button class="btn-primary" onclick="publishStory()">Share Story</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Story Viewer Modal -->
+    <div id="story-viewer-modal" class="modal hidden">
+        <div class="story-viewer-fullscreen">
+            <div class="story-progress" id="story-progress"></div>
+            <div class="story-header">
+                <div class="story-user-info">
+                    <img src="" alt="" class="avatar-small" id="story-viewer-avatar">
+                    <div>
+                        <strong id="story-viewer-name"></strong>
+                        <span id="story-viewer-time"></span>
+                    </div>
+                </div>
+                <button onclick="closeModal('story-viewer-modal')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="story-content" id="story-viewer-content"></div>
+            <div class="story-footer">
+                <input type="text" placeholder="Reply to story..." id="story-reply-input">
+                <button><i class="fas fa-heart"></i></button>
+                <button><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="image-viewer" class="modal hidden">
+        <div class="image-viewer-content">
+            <button class="close-modal" onclick="closeModal('image-viewer')"><i class="fas fa-times"></i></button>
+            <img src="" alt="" id="viewer-image">
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
